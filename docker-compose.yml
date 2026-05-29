@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  iptv:
+    build: .
+    container_name: iptv-self
+    restart: unless-stopped
+    ports:
+      - "80:80"        # m3u 订阅地址
+      - "8888:8888"    # 流代理
+    environment:
+      - PUBLIC_IP=${PUBLIC_IP:-}
+    volumes:
+      - ./output:/app/output  # 持久化 m3u 文件

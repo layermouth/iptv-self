@@ -1,0 +1,7 @@
+#EXTM3U x-tvg-url="https://epg.112114.xyz/pp.xml"
+# 更新时间: 等待首次运行
+# 频道数: 等待首次运行
+# 港台频道 - 自建直播源
+# 
+# 请在 GitHub Actions 中手动触发 "Update IPTV Sources" 来生成频道列表
+# 或等待每天北京时间 04:00 / 16:00 自动更新
