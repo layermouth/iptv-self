@@ -17,6 +17,27 @@ echo "║   🛰️  IPTV 自建直播源 - VPS 部署    ║"
 echo "╚══════════════════════════════════════╝"
 echo -e "${NC}"
 
+# ---- 0. 修复源和主机名 ----
+echo ""
+echo -e "${YELLOW}[0/5] 修复系统源 (Ubuntu 22.04 EOL)...${NC}"
+
+# 修复 hosts 文件（解决 sudo 无法解析主机名）
+HOSTNAME=$(hostname)
+if ! grep -q "$HOSTNAME" /etc/hosts 2>/dev/null; then
+    echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
+    echo "✓ 已添加主机名到 /etc/hosts"
+fi
+
+# 替换 apt 源为旧版本归档（Ubuntu 22.04 已 EOL）
+if [ -f /etc/apt/sources.list ]; then
+    sed -i 's|http://archive.ubuntu.com/ubuntu|http://old-releases.ubuntu.com/ubuntu|g' /etc/apt/sources.list
+    sed -i 's|http://security.ubuntu.com/ubuntu|http://old-releases.ubuntu.com/ubuntu|g' /etc/apt/sources.list
+    # 也处理 ports.ubuntu.com（ARM 架构）
+    sed -i 's|http://ports.ubuntu.com/ubuntu-ports|http://old-releases.ubuntu.com/ubuntu|g' /etc/apt/sources.list 2>/dev/null || true
+    apt-get update -qq 2>/dev/null || true
+    echo "✓ apt 源已切换到 old-releases.ubuntu.com"
+fi
+
 # ---- 1. 检测系统 ----
 if [ -f /etc/os-release ]; then
     . /etc/os-release
@@ -30,8 +51,8 @@ if ! command -v docker &> /dev/null; then
     echo ""
     echo -e "${YELLOW}[1/5] 安装 Docker...${NC}"
     curl -fsSL https://get.docker.com | bash
-    systemctl enable docker
-    systemctl start docker
+    systemctl enable docker 2>/dev/null || true
+    systemctl start docker 2>/dev/null || true
     echo -e "${GREEN}✓ Docker 安装完成${NC}"
 else
     echo -e "${GREEN}✓ Docker 已安装${NC}"
@@ -41,7 +62,7 @@ fi
 if ! docker compose version &> /dev/null 2>&1; then
     echo ""
     echo -e "${YELLOW}[2/5] 安装 Docker Compose...${NC}"
-    apt-get update -qq && apt-get install -y -qq docker-compose-plugin 2>/dev/null || true
+    apt-get update -qq 2>/dev/null && apt-get install -y -qq docker-compose-plugin 2>/dev/null || true
     echo -e "${GREEN}✓ Docker Compose 安装完成${NC}"
 else
     echo -e "${GREEN}✓ Docker Compose 已安装${NC}"
@@ -50,7 +71,7 @@ fi
 # ---- 4. 获取 VPS 公网 IP ----
 echo ""
 echo -e "${YELLOW}[3/5] 检测 VPS IP...${NC}"
-PUBLIC_IP=$(curl -s -4 ifconfig.me 2>/dev/null || curl -s -4 ip.sb 2>/dev/null || curl -s -4 ipinfo.io/ip 2>/dev/null || hostname -I | awk '{print $1}')
+PUBLIC_IP=$(curl -s -4 ifconfig.me 2>/dev/null || curl -s -4 ip.sb 2>/dev/null || curl -s -4 ipinfo.io/ip 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}')
 echo -e "${GREEN}✓ VPS IP: ${PUBLIC_IP}${NC}"
 
 # ---- 5. 构建并启动 ----
