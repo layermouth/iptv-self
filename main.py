@@ -12,6 +12,7 @@ import re
 import os
 import sys
 import time
+import base64
 import hashlib
 import logging
 from datetime import datetime, timezone, timedelta
@@ -146,23 +147,43 @@ def fetch_source(source: dict) -> list[dict]:
 
 
 def test_url(url):
-    """严格测速"""
+    """严格测速 - 智能识别 HLS 和直连流"""
     try:
         t0 = time.time()
         r = session.get(url, stream=True, timeout=SPEED_TEST_TIMEOUT)
         if r.status_code != 200:
             r.close(); return False, 0
         ct = r.headers.get("Content-Type", "")
-        if "text/html" in ct or "application/json" in ct or "text/plain" in ct:
+        # 拒绝错误页面
+        if "text/html" in ct or "application/json" in ct:
             r.close(); return False, 0
+        # 判断是否 HLS 流 (m3u8)
+        is_hls = "m3u8" in ct or "m3u8" in url.lower() or "hls" in url.lower()
         c = b""
         for x in r.iter_content(4096):
             c += x
-            if len(c) >= 8192: break
+            if len(c) >= 16384: break
         r.close()
-        if not c or len(c) < 512: return False, 0
+        if not c or len(c) < 64: return False, 0
+        # HLS 流: 验证播放列表有效性
+        if is_hls:
+            try:
+                text = c.decode('utf-8', errors='ignore')
+                if text.startswith('#EXTM3U') and ('#EXTINF' in text or '#EXT-X-STREAM-INF' in text):
+                    return True, time.time() - t0
+                # 有些虎牙流返回的 m3u8 没有标准头部但包含 TS 引用
+                if '.ts' in text or 'm3u8' in text.lower():
+                    return True, time.time() - t0
+                return False, 0
+            except: return False, 0
+        # 直连流: 验证包含二进制视频数据
+        if len(c) < 512: return False, 0
+        # 检查是否 HTML 错误页 (即使 Content-Type 正确也可能返回 HTML)
+        if c[:64].strip().startswith(b'<!') or c[:64].strip().startswith(b'<html'):
+            return False, 0
         np = sum(1 for b in c if b < 32 and b not in (9,10,13))
-        if np < len(c) * 0.05: return False, 0
+        # 放宽二进制比例要求(考虑视频流可能以文本头开始)
+        if np < max(len(c) * 0.03, 15): return False, 0
         return True, time.time() - t0
     except: return False, 0
 
@@ -171,14 +192,33 @@ def huya_stream(rid):
     """提取虎牙直播流"""
     try:
         r = session.get("https://m.huya.com/" + str(rid),
-            headers={"User-Agent":"Mozilla/5.0 (Linux; Android 10)"}, timeout=10)
+            headers={"User-Agent":"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36"}, timeout=10)
         if r.status_code != 200: return None
-        m = re.search(r'"liveLineUrl":"([^"]+)"', r.text)
-        if not m: return None
-        try: return base64.b64decode(m.group(1)).decode()
-        except:
-            u = m.group(1)
-            return u if u.startswith("http") else None
+        text = r.text
+        # Method 1: liveLineUrl (base64 encoded)
+        m = re.search(r'"liveLineUrl":"([^"]+)"', text)
+        if m:
+            try: url = base64.b64decode(m.group(1)).decode()
+            except:
+                url = m.group(1)
+            if url.startswith("http"):
+                return url
+            if url.startswith("//"):
+                return "https:" + url
+        # Method 2: direct m3u8 field
+        m = re.search(r'"m3u8":"([^"]+)"', text)
+        if m:
+            url = m.group(1).replace('\\u002F', '/')
+            if url.startswith("//"): url = "https:" + url
+            if "m3u8" in url: return url
+        # Method 3: stream base64
+        m = re.search(r'"stream":\s*"([^"]*)"', text)
+        if m:
+            try: url = base64.b64decode(m.group(1)).decode()
+            except: url = m.group(1)
+            if url.startswith("//"): url = "https:" + url
+            if "huya" in url.lower(): return url
+        return None
     except: return None
 
 
@@ -207,18 +247,34 @@ def douyu_stream(rid):
 # ===== 主流程 =====
 
 def collect_live():
-    """收集虎牙/斗鱼直播流"""
+    """并发收集虎牙/斗鱼直播流"""
     chs = []
-    for rm in HUYA_ROOMS:
-        u = huya_stream(rm["id"])
-        if u:
-            chs.append({"name":rm["name"],"url":u,"_src":"Huya","_pri":1})
-        log.info("  Huya %s: %s" % (rm["name"], "OK" if u else "offline"))
-    for rm in DOUYU_ROOMS:
-        u = douyu_stream(rm["id"])
-        if u:
-            chs.append({"name":rm["name"],"url":u,"_src":"Douyu","_pri":1})
-        log.info("  Douyu %s: %s" % (rm["name"], "OK" if u else "offline"))
+    HUYA_TIMEOUT = 12  # 比 session timeout 稍长
+    # 并发提取虎牙流
+    with ThreadPoolExecutor(max_workers=10) as ex:
+        futures = {}
+        for rm in HUYA_ROOMS:
+            futures[ex.submit(huya_stream, rm["id"])] = rm
+        for f in as_completed(futures):
+            rm = futures[f]
+            try:
+                u = f.result(timeout=HUYA_TIMEOUT)
+                if u:
+                    chs.append({"name":rm["name"],"url":u,"_source":"Huya","_priority":1})
+            except: pass
+    # 并发提取斗鱼流
+    with ThreadPoolExecutor(max_workers=5) as ex:
+        futures = {}
+        for rm in DOUYU_ROOMS:
+            futures[ex.submit(douyu_stream, rm["id"])] = rm
+        for f in as_completed(futures):
+            rm = futures[f]
+            try:
+                u = f.result(timeout=HUYA_TIMEOUT)
+                if u:
+                    chs.append({"name":rm["name"],"url":u,"_source":"Douyu","_priority":1})
+            except: pass
+    log.info("虎牙/斗鱼: %d 个在线" % len(chs))
     return chs
 
 def main():
@@ -238,16 +294,51 @@ def main():
     all_channels.extend(collect_live())
     log.info("总计: %d 条" % len(all_channels))
 
-    # ----- 2. 去重合并 (保留多线路) -----
-    log.info("[2/4] 去重合并...")
+    # ----- 2. 去重合并 + 过滤地方台 -----
+    log.info("[2/4] 去重合并 + 过滤地方台...")
+    # 地方频道黑名单关键词
+    LOCAL_BLACKLIST = [
+        "县台","区台","市台","乡镇","街道","村",
+        "文旅","旅游","风光","景点",
+        "党建","政务","政法","纪委","普法",
+        "教科","教育","教学","课堂","校园",
+        "卫生健康","医院","医疗","疾控",
+        "气象","天气","环境监测",
+    ]
+    def is_local(name):
+        nl = name.lower()
+        # 跳过央视/卫视/港台/电影
+        if match_kw(name, HK_TW_KEYWORDS): return False
+        if match_kw(name, MOVIE_KEYWORDS): return False
+        # 央视和卫视关键词
+        if any(k in name for k in ["CCTV","央视","卫视","凤凰","星空","好莱坞","HBO","Disney","Cartoon"]):
+            return False
+        # 检查地方台关键词
+        for kw in LOCAL_BLACKLIST:
+            if kw in name:
+                return True
+        # XX综合/XX都市/XX新闻等(长度<6且含地方特征)
+        if len(name) <= 8:
+            local_suffixes = ["综合","都市","公共","新闻","生活","经济","影视","教育","农业","少儿","文体"]
+            for sfx in local_suffixes:
+                if name.endswith(sfx) and "卫视" not in name and "CCTV" not in name:
+                    return True
+        return False
+
     merged = OrderedDict()
+    local_count = 0
     for ch in all_channels:
+        name = ch.get("name","")
+        if name and is_local(name):
+            local_count += 1
+            continue
         key = ch_key(ch)
         if key not in merged:
             merged[key] = []
         eurls = {ukey(x.get("url","")) for x in merged[key]}
         if ukey(ch.get("url","")) not in eurls:
             merged[key].append(ch)
+    log.info("过滤地方台: %d 条" % local_count)
     for k in merged:
         merged[k].sort(key=lambda x: x.get("_priority",99))
     total_urls = sum(len(v) for v in merged.values())
@@ -255,29 +346,49 @@ def main():
 
     # ----- 3. 测速 -----
     if not skip:
-        log.info("[3/4] 严格测速...")
+        log.info("[3/4] 严格测速 (%d 频道, %d 候选线路)..." % (len(merged), total_urls))
         okd = OrderedDict()
-        total = len(merged)
-        done = 0
+
+        # 展开所有候选 URL (每频道最多 SPEED_TEST_LIMIT 条)
+        all_tasks = []  # [(channel_key, url, channel_obj)]
         for k, cl in merged.items():
-            alive = []
-            with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-                ff = {ex.submit(test_url, c["url"]): c for c in cl[:SPEED_TEST_LIMIT]}
-                for f in as_completed(ff):
-                    c = ff[f]
-                    ok, sp = f.result()
+            for c in cl[:SPEED_TEST_LIMIT]:
+                all_tasks.append((k, c["url"], c))
+
+        log.info("  共 %d 条 URL 待测..." % len(all_tasks))
+        results = {}  # key -> [passed_channels]
+        tested = 0
+
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+            futures = {}
+            for task in all_tasks:
+                k, url, ch = task
+                futures[ex.submit(test_url, url)] = (k, ch)
+
+            for f in as_completed(futures):
+                k, ch = futures[f]
+                tested += 1
+                try:
+                    ok, sp = f.result(timeout=SPEED_TEST_TIMEOUT + 2)
                     if ok:
-                        c["speed"] = sp
-                        alive.append(c)
-            alive.sort(key=lambda x: x.get("speed", 999))
-            if alive:
-                okd[k] = alive[:SPEED_TEST_LIMIT]
-            done += 1
-            if done % 100 == 0 or done == total:
-                log.info("  测速进度: %d/%d" % (done, total))
+                        ch["speed"] = sp
+                        if k not in results:
+                            results[k] = []
+                        results[k].append(ch)
+                except Exception:
+                    pass
+
+                if tested % 500 == 0:
+                    log.info("  测速: %d/%d (存活 %d 频道)" % (tested, len(all_tasks), len(results)))
+
+        # 排序并限制每频道线路数
+        for k in results:
+            results[k].sort(key=lambda x: x.get("speed", 999))
+            okd[k] = results[k][:SPEED_TEST_LIMIT]
+
         merged = okd
         ta = sum(len(v) for v in merged.values())
-        log.info("测速完成: %d 频道, %d 线路" % (len(merged), ta))
+        log.info("测速完成: %d 频道, %d 线路 (淘汰 %d)" % (len(merged), ta, len(all_tasks) - ta))
     else:
         dd = OrderedDict()
         for k, cl in merged.items():
