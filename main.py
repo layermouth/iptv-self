@@ -62,37 +62,58 @@ def normalize_name(name: str) -> str:
     name = name.strip()
     # 去掉括号及内容（如 "(576p)"、"[Geo-blocked]"）
     name = re.sub(r"\s*[\(\[（].*?[\)\]）]\s*", "", name)
-    # 去掉分辨率后缀
     name = re.sub(r"\s+\d+p$", "", name)
     name = re.sub(r"\s+(HD|FHD|SD|UHD|4K|8K)$", "", name)
     return name.strip()
 
 
-def match_keywords(name: str, keywords: list[str]) -> bool:
-    """检查频道名是否匹配任一关键词（不区分大小写）"""
-    name_lower = name.lower()
-    for kw in keywords:
-        if kw.lower() in name_lower:
+def parse_txt(content):
+    """解析 TXT 格式"""
+    chs = []
+    for line in content.split(chr(10)):
+        line = line.strip()
+        if not line or "#genre#" in line:
+            continue
+        parts = line.split(",", 1)
+        if len(parts) < 2:
+            continue
+        name = parts[0].strip()
+        url = parts[1].strip().split("$")[0].strip()
+        if name and url.startswith("http"):
+            chs.append({"name": name, "url": url})
+    return chs
+
+
+def match_kw(name, kws):
+    nl = name.lower()
+    for kw in kws:
+        if kw.lower() in nl:
             return True
     return False
 
 
-def sort_key(name: str, is_movie: bool = False) -> int:
-    """返回频道的排序权重，越小越靠前"""
-    keywords = MOVIE_ORDER_KEYWORDS if is_movie else ORDER_KEYWORDS
-    for i, kw in enumerate(keywords):
+def sort_key(name, mv=False):
+    kws = MOVIE_ORDER_KEYWORDS if mv else ORDER_KEYWORDS
+    for i, kw in enumerate(kws):
         if kw.lower() in name.lower():
             return i
-    return len(keywords)
+    return len(kws)
 
 
-def proxy_url(original_url: str) -> str:
-    """如果启用了 VPS 代理，将原始流地址替换为代理地址"""
-    if not PROXY_ENABLED:
-        return original_url
-    from urllib.parse import quote
-    encoded = quote(original_url, safe='')
-    return f"http://{PROXY_HOST}:{PROXY_PORT}/proxy?url={encoded}"
+def norm_name(name):
+    name = name.strip()
+    name = re.sub(r"\s*[\(\[（].*?[\)\]）]\s*", "", name)
+    name = re.sub(r"\s+\d+p$", "", name)
+    name = re.sub(r"\s+(HD|FHD|SD|UHD|4K|8K)$", "", name)
+    return name.strip()
+
+
+def ch_key(ch):
+    return hashlib.md5(norm_name(ch.get("name", "")).lower().encode()).hexdigest()
+
+
+def ukey(url):
+    return hashlib.md5(url.encode()).hexdigest()
 
 
 # ===== 网络请求 =====
@@ -104,61 +125,107 @@ session.timeout = 30
 
 
 def fetch_source(source: dict) -> list[dict]:
-    """抓取单个数据源"""
+    """抓取单个数据源（支持 m3u 和 txt 格式）"""
     try:
+        fmt = source.get("format", "m3u")
         resp = session.get(source["url"], timeout=30)
         resp.raise_for_status()
-        # 处理可能的编码问题
-        content = resp.text
-        if resp.encoding and resp.encoding.lower() != "utf-8":
-            try:
-                content = resp.content.decode("utf-8")
-            except:
-                pass
-        channels = parse_m3u(content)
-        log.info(f"  ✓ {source['name']}: {len(channels)} 个频道")
+        text = resp.text
+        if fmt == "txt":
+            channels = parse_txt(text)
+        else:
+            channels = parse_m3u(text)
+        log.info(f"  {source['name']}: {len(channels)} ch ({fmt})")
         for ch in channels:
             ch["_source"] = source["name"]
             ch["_priority"] = source["priority"]
         return channels
     except Exception as e:
-        log.warning(f"  ✗ {source['name']}: {e}")
+        log.warning(f"  X {source['name']}: {e}")
         return []
 
 
-def test_stream(url: str, timeout: int = SPEED_TEST_TIMEOUT) -> tuple[bool, float]:
-    """测试流地址是否可用，返回 (可用, 响应时间秒)"""
+def test_url(url):
+    """严格测速"""
     try:
-        start = time.time()
-        # 只请求前几个字节，不下载完整流
-        resp = session.get(url, stream=True, timeout=timeout)
-        if resp.status_code == 200:
-            # 读取一点数据确认流活跃
-            chunk = next(resp.iter_content(chunk_size=1024), None)
-            resp.close()
-            if chunk and len(chunk) > 100:
-                elapsed = time.time() - start
-                return True, elapsed
-        resp.close()
-    except:
-        pass
-    return False, 0
+        t0 = time.time()
+        r = session.get(url, stream=True, timeout=SPEED_TEST_TIMEOUT)
+        if r.status_code != 200:
+            r.close(); return False, 0
+        ct = r.headers.get("Content-Type", "")
+        if "text/html" in ct or "application/json" in ct or "text/plain" in ct:
+            r.close(); return False, 0
+        c = b""
+        for x in r.iter_content(4096):
+            c += x
+            if len(c) >= 8192: break
+        r.close()
+        if not c or len(c) < 512: return False, 0
+        np = sum(1 for b in c if b < 32 and b not in (9,10,13))
+        if np < len(c) * 0.05: return False, 0
+        return True, time.time() - t0
+    except: return False, 0
 
 
-# ===== 去重 =====
-def channel_key(ch: dict) -> str:
-    """生成频道唯一标识（基于标准化名称）"""
-    name = normalize_name(ch.get("name", ""))
-    return hashlib.md5(name.lower().encode()).hexdigest()
+def huya_stream(rid):
+    """提取虎牙直播流"""
+    try:
+        r = session.get("https://m.huya.com/" + str(rid),
+            headers={"User-Agent":"Mozilla/5.0 (Linux; Android 10)"}, timeout=10)
+        if r.status_code != 200: return None
+        m = re.search(r'"liveLineUrl":"([^"]+)"', r.text)
+        if not m: return None
+        try: return base64.b64decode(m.group(1)).decode()
+        except:
+            u = m.group(1)
+            return u if u.startswith("http") else None
+    except: return None
+
+
+def douyu_stream(rid):
+    """提取斗鱼直播流"""
+    try:
+        r = session.get("https://m.douyu.com/" + str(rid), timeout=10)
+        if r.status_code != 200: return None
+        m = re.search(r'rid":(\d{1,8})', r.text)
+        if not m: return None
+        rid2 = m.group(1)
+        t13 = str(int(time.time()*1000))
+        auth = hashlib.md5((rid2+t13).encode()).hexdigest()
+        r2 = session.post("https://playweb.douyucdn.cn/lapi/live/hlsH5Preview/" + rid2,
+            headers={"rid":rid2,"time":t13,"auth":auth},
+            data={"rid":rid2,"did":"10000000000000000000000000001501"}, timeout=10)
+        if r2.status_code != 200: return None
+        d = r2.json()
+        if d.get("error") != 0: return None
+        dd = d.get("data",{})
+        ru = dd.get("rtmp_url",""); rl = dd.get("rtmp_live","")
+        return ru + "/" + rl if ru and rl else None
+    except: return None
 
 
 # ===== 主流程 =====
+
+def collect_live():
+    """收集虎牙/斗鱼直播流"""
+    chs = []
+    for rm in HUYA_ROOMS:
+        u = huya_stream(rm["id"])
+        if u:
+            chs.append({"name":rm["name"],"url":u,"_src":"Huya","_pri":1})
+        log.info("  Huya %s: %s" % (rm["name"], "OK" if u else "offline"))
+    for rm in DOUYU_ROOMS:
+        u = douyu_stream(rm["id"])
+        if u:
+            chs.append({"name":rm["name"],"url":u,"_src":"Douyu","_pri":1})
+        log.info("  Douyu %s: %s" % (rm["name"], "OK" if u else "offline"))
+    return chs
+
 def main():
-    skip_test = "--skip-test" in sys.argv
+    skip = "--skip-test" in sys.argv
     log.info("=" * 60)
-    log.info("IPTV 自建直播源 - 开始更新")
-    log.info(f"数据源数量: {len(SOURCE_URLS)}")
-    log.info(f"跳过测速: {skip_test}")
+    log.info("IPTV 自建直播源 - 开始更新 (%d 个源)" % len(SOURCE_URLS))
+    log.info("跳过测速: %s" % skip)
     log.info("=" * 60)
 
     # ----- 1. 聚合所有源 -----
@@ -167,141 +234,92 @@ def main():
     for src in SOURCE_URLS:
         channels = fetch_source(src)
         all_channels.extend(channels)
-    log.info(f"总计抓取: {len(all_channels)} 个频道条目")
+    log.info("收集虎牙/斗鱼直播流...")
+    all_channels.extend(collect_live())
+    log.info("总计: %d 条" % len(all_channels))
 
-    # ----- 2. 去重合并 -----
+    # ----- 2. 去重合并 (保留多线路) -----
     log.info("[2/4] 去重合并...")
-    merged = OrderedDict()  # key -> 最优 channel
+    merged = OrderedDict()
     for ch in all_channels:
-        key = channel_key(ch)
-        if key in merged:
-            existing = merged[key]
-            # 保留优先级更高的源
-            if ch.get("_priority", 99) < existing.get("_priority", 99):
-                merged[key] = ch
-        else:
-            merged[key] = ch
-    log.info(f"去重后: {len(merged)} 个唯一频道")
+        key = ch_key(ch)
+        if key not in merged:
+            merged[key] = []
+        eurls = {ukey(x.get("url","")) for x in merged[key]}
+        if ukey(ch.get("url","")) not in eurls:
+            merged[key].append(ch)
+    for k in merged:
+        merged[k].sort(key=lambda x: x.get("_priority",99))
+    total_urls = sum(len(v) for v in merged.values())
+    log.info("去重后: %d 频道, %d 线路" % (len(merged), total_urls))
 
-    # ----- 2.5 分类：港台 / 电影 / 其他 -----
-    hk_tw_channels = {}
-    movie_channels = {}
-    other_channels = {}
-    for key, ch in merged.items():
-        name = normalize_name(ch.get("name", ""))
-        ch["_name_norm"] = name
-        if match_keywords(name, HK_TW_KEYWORDS):
-            hk_tw_channels[key] = ch
-        if match_keywords(name, MOVIE_KEYWORDS):
-            movie_channels[key] = ch
-        if not match_keywords(name, HK_TW_KEYWORDS) and not match_keywords(name, MOVIE_KEYWORDS):
-            other_channels[key] = ch
-    # 港台和电影有重叠是正常的
-    log.info(f"港台频道: {len(hk_tw_channels)}, 电影频道: {len(movie_channels)}, 其他: {len(other_channels)}")
-
-    # ----- 3. 测速（可选） -----
-    tested_hk_tw = {}
-    tested_movie = {}
-    tested_other = {}
-
-    if not skip_test:
-        log.info(f"[3/4] 测速验证 (超时={SPEED_TEST_TIMEOUT}s, 并发={MAX_WORKERS})...")
-        total = len(hk_tw_channels) + len(movie_channels) + len(other_channels)
+    # ----- 3. 测速 -----
+    if not skip:
+        log.info("[3/4] 严格测速...")
+        okd = OrderedDict()
+        total = len(merged)
         done = 0
-
-        def test_one(item):
-            key, ch = item
-            ok, elapsed = test_stream(ch["url"])
-            return key, ch, ok, elapsed
-
-        all_to_test = list(hk_tw_channels.items()) + list(movie_channels.items()) + list(other_channels.items())
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            futures = {executor.submit(test_one, item): item for item in all_to_test}
-            for future in as_completed(futures):
-                key, ch, ok, elapsed = future.result()
-                done += 1
-                if ok:
-                    ch["_speed"] = round(elapsed, 2)
-                    if key in hk_tw_channels:
-                        tested_hk_tw[key] = ch
-                    if key in movie_channels:
-                        tested_movie[key] = ch
-                    if key in other_channels:
-                        tested_other[key] = ch
-                if done % 50 == 0:
-                    log.info(f"  测速进度: {done}/{total}")
-        log.info(f"  港台可用: {len(tested_hk_tw)}, 电影可用: {len(tested_movie)}, 其他可用: {len(tested_other)}")
+        for k, cl in merged.items():
+            alive = []
+            with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+                ff = {ex.submit(test_url, c["url"]): c for c in cl[:SPEED_TEST_LIMIT]}
+                for f in as_completed(ff):
+                    c = ff[f]
+                    ok, sp = f.result()
+                    if ok:
+                        c["speed"] = sp
+                        alive.append(c)
+            alive.sort(key=lambda x: x.get("speed", 999))
+            if alive:
+                okd[k] = alive[:SPEED_TEST_LIMIT]
+            done += 1
+            if done % 100 == 0 or done == total:
+                log.info("  测速进度: %d/%d" % (done, total))
+        merged = okd
+        ta = sum(len(v) for v in merged.values())
+        log.info("测速完成: %d 频道, %d 线路" % (len(merged), ta))
     else:
-        log.info("[3/4] 跳过测速 (--skip-test)")
-        tested_hk_tw = hk_tw_channels
-        tested_movie = movie_channels
-        tested_other = other_channels
+        dd = OrderedDict()
+        for k, cl in merged.items():
+            if cl:
+                dd[k] = [cl[0]]
+        merged = dd
+        log.info("跳过测速: %d 频道" % len(merged))
 
-    # ----- 4. 排序 + 生成 m3u -----
-    log.info("[4/4] 生成 m3u 文件...")
+    # ----- 4. 分类 -----
+    log.info("[4/4] 分类生成 m3u...")
+    hk = OrderedDict()
+    mv = OrderedDict()
+    ot = OrderedDict()
+    for k, cl in merged.items():
+        nm = norm_name(cl[0].get("name", ""))
+        hm = match_kw(nm, HK_TW_KEYWORDS)
+        mm = match_kw(nm, MOVIE_KEYWORDS)
+        if hm:
+            hk[k] = cl
+        if mm:
+            mv[k] = cl
+        if not hm and not mm:
+            ot[k] = cl
+    log.info("港台: %d, 电影: %d, 其他: %d" % (len(hk), len(mv), len(ot)))
+    def gen_m3u(cd, op, title):
+        lns = ["#EXTM3U"]
+        is_mv = "Movie" in title
+        sk = sorted(cd.keys(), key=lambda k: sort_key(cd[k][0].get("name",""), is_mv))
+        tc = 0; tl = 0
+        for k in sk:
+            nm = cd[k][0].get("name","?")
+            tc += 1
+            for c in cd[k]:
+                lns.append('#EXTINF:-1 tvg-name="%s" group-title="%s",%s' % (nm, title, nm))
+                lns.append(c["url"]); tl += 1
+        c = chr(10).join(lns)
+        os.makedirs(os.path.dirname(op), exist_ok=True)
+        with open(op, "w", encoding="utf-8") as f: f.write(c)
+        log.info("  %s: %d ch, %d lines" % (op, tc, tl))
 
-    def generate_m3u(channels: dict, output_path: str, title: str, is_movie: bool = False):
-        """生成 m3u 文件"""
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        sorted_channels = sorted(
-            channels.values(),
-            key=lambda ch: (sort_key(normalize_name(ch.get("name", "")), is_movie),
-                           normalize_name(ch.get("name", "")))
-        )
-        now_str = datetime.now(TZ_BEIJING).strftime("%Y-%m-%d %H:%M")
-        lines = ['#EXTM3U x-tvg-url="{}"'.format(EPG_URL)]
-        lines.append(f"# 更新时间: {now_str} (北京时间)")
-        lines.append(f"# 频道数: {len(sorted_channels)}")
-        lines.append(f"# {title}")
-        if PROXY_ENABLED:
-            lines.append(f"# 代理模式: 通过 http://{PROXY_HOST}:{PROXY_PORT} 中转")
-        lines.append("")
-
-        for ch in sorted_channels:
-            name = normalize_name(ch.get("name", ""))
-            logo = ch.get("tvg-logo", "")
-            group = ch.get("group-title", "")
-            url = proxy_url(ch["url"])
-            speed = ch.get("_speed", "")
-            source = ch.get("_source", "")
-
-            extinf = f'#EXTINF:-1 tvg-name="{name}" tvg-logo="{logo}" group-title="{group}"'
-            if speed:
-                extinf += f' speed="{speed}s"'
-            if source:
-                extinf += f' source="{source}"'
-            extinf += f",{name}"
-            lines.append(extinf)
-            lines.append(url)
-            lines.append("")
-
-        with open(output_path, "w", encoding="utf-8") as f:
-            f.write("\n".join(lines))
-        log.info(f"  已生成: {output_path} ({len(sorted_channels)} 频道)")
-
-    # 生成港台专用
-    generate_m3u(tested_hk_tw, HK_TW_OUTPUT, "港台频道 - 自建直播源")
-    # 生成电影专用
-    generate_m3u(tested_movie, MOVIE_OUTPUT, "电影频道 - 自建直播源", is_movie=True)
-    # 生成全频道
-    all_tested = {}
-    all_tested.update(tested_hk_tw)
-    all_tested.update(tested_movie)
-    all_tested.update(tested_other)
-    generate_m3u(all_tested, ALL_OUTPUT, "全频道 - 自建直播源")
-
-    # ----- 汇总 -----
-    log.info("=" * 60)
-    log.info("✅ 更新完成!")
-    log.info(f"  港台频道: {HK_TW_OUTPUT} ({len(tested_hk_tw)} 个)")
-    log.info(f"  电影频道: {MOVIE_OUTPUT} ({len(tested_movie)} 个)")
-    log.info(f"  全频道:   {ALL_OUTPUT} ({len(all_tested)} 个)")
-    if PROXY_ENABLED:
-        log.info(f"  代理模式: http://{PROXY_HOST}:{PROXY_PORT}")
-    else:
-        log.info(f"  GitHub:   {GITHUB_RAW_BASE}/")
-    log.info("=" * 60)
-
-
+    gen_m3u(merged, ALL_OUTPUT, "All")
+    gen_m3u(hk, HK_TW_OUTPUT, "HK_TW")
+    gen_m3u(mv, MOVIE_OUTPUT, "Movies")
 if __name__ == "__main__":
     main()

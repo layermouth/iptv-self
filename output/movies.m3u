@@ -1,0 +1,119 @@
+#EXTM3U
+#EXTINF:-1 tvg-name="天映频道" group-title="Movies",天映频道
+http://php.jdshipin.com:8880/smt.php?id=Celestial
+#EXTINF:-1 tvg-name="天映经典" group-title="Movies",天映经典
+http://php.jdshipin.com:8880/smt.php?id=Celestial2
+#EXTINF:-1 tvg-name="Celestial Movies (576i)" group-title="Movies",Celestial Movies (576i)
+http://103.58.160.157:8278/720-CELESTIALMOVIES/playlist.m3u8
+#EXTINF:-1 tvg-name="HBO喜剧" group-title="Movies",HBO喜剧
+http://23.237.104.106:8080/USA_HBO_COMEDY/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-name="HBO" group-title="Movies",HBO
+http://23.237.104.106:8080/USA_HBO/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-name="HBO精选" group-title="Movies",HBO精选
+http://23.237.104.106:8080/USA_HBO2/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-name="HBO王牌" group-title="Movies",HBO王牌
+http://23.237.104.106:8080/USA_HBO_ZONE/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-name="美亚电影台" group-title="Movies",美亚电影台
+https://live.tvfix.org/live/mydy/index.m3u8
+#EXTINF:-1 tvg-name="美亚电影" group-title="Movies",美亚电影
+http://iptv.4666888.xyz/iptv2A.php?id=30
+#EXTINF:-1 tvg-name="美亚C+" group-title="Movies",美亚C+
+http://ottproxy2.ist.ooo/livehls/MOB-U1-NO/03.m3u8
+#EXTINF:-1 tvg-name="CHC家庭影院" group-title="Movies",CHC家庭影院
+http://101.35.240.114:88/live.php?id=CHC家庭影院
+#EXTINF:-1 tvg-name="CHC动作电影" group-title="Movies",CHC动作电影
+http://101.35.240.114:88/live.php?id=CHC动作电影
+#EXTINF:-1 tvg-name="CHC影迷电影" group-title="Movies",CHC影迷电影
+http://101.35.240.114:88/live.php?id=CHC影迷电影
+#EXTINF:-1 tvg-name="CHC影迷电影HD" group-title="Movies",CHC影迷电影HD
+http://122.228.73.138:2380/hw1live.rxip.sc96655.com.huan.tv/live/lnwsCHC-HDH265_4000.m3u8
+#EXTINF:-1 tvg-name="CHC家庭影院HD" group-title="Movies",CHC家庭影院HD
+http://122.228.73.138:2380/hw1live.rxip.sc96655.com.huan.tv/live/jbtygqCHCjtyyH265_4000.m3u8
+#EXTINF:-1 tvg-name="CHC动作电影HD" group-title="Movies",CHC动作电影HD
+http://122.228.73.138:2380/hw1live.rxip.sc96655.com.huan.tv/live/wqCHCdzdyH265_4000.m3u8
+#EXTINF:-1 tvg-name="CHC电影" group-title="Movies",CHC电影
+http://183.237.95.108:9901/tsfile/live/1008_1.m3u8?key=txiptv&playlive=0&authid=0
+#EXTINF:-1 tvg-name="龙华电影" group-title="Movies",龙华电影
+http://iptv.4666888.xyz/iptv2A.php?id=45
+#EXTINF:-1 tvg-name="龙华洋片" group-title="Movies",龙华洋片
+https://cdn8.163189.xyz/live/lhyp/stream.m3u8
+#EXTINF:-1 tvg-name="东森电影" group-title="Movies",东森电影
+http://mytv.cdn.com.mp/live/dsdy/stream.m3u8
+#EXTINF:-1 tvg-name="纬来电影" group-title="Movies",纬来电影
+http://iptv.4666888.xyz/iptv2A.php?id=54
+#EXTINF:-1 tvg-name="凤凰电影" group-title="Movies",凤凰电影
+http://iot-mqqt.111yao.cn:8080/live/diyp_fhdy.m3u8
+#EXTINF:-1 tvg-name="星空卫视" group-title="Movies",星空卫视
+http://iot-mqqt.111yao.cn:8080/live/diyp_xingkong.m3u8
+#EXTINF:-1 tvg-name="星空国际" group-title="Movies",星空国际
+http://iot-mqqt.111yao.cn:8080/live/diyp_starmovies.m3u8
+#EXTINF:-1 tvg-name="靖天电影" group-title="Movies",靖天电影
+http://live4play.uk/livehttpplay?channel_id=12037
+#EXTINF:-1 tvg-name="CCTV-6电影" group-title="Movies",CCTV-6电影
+http://[2409:8087:8:21::18]:6610/otttv.bj.chinamobile.com/PLTV/88888888/224/3221226468/1.m3u8?
+#EXTINF:-1 tvg-name="CCTV-6" group-title="Movies",CCTV-6
+https://iptv.catvod.com/live.php?id=CCTV6&line=7
+#EXTINF:-1 tvg-name="CCTV-6 电影" group-title="Movies",CCTV-6 电影
+rtp://239.3.1.174:8001
+#EXTINF:-1 tvg-name="1905电影网" group-title="Movies",1905电影网
+http://8.138.7.223/tv/1905.php?id=LIVE8J4LTCXPI7QJ5
+#EXTINF:-1 tvg-name="Disney International" group-title="Movies",Disney International
+http://sansat.net:88/HhPRf2nAlsVeRU9/AnzgPldGC8OHsyY/96284
+#EXTINF:-1 tvg-name="金鹰卡通" group-title="Movies",金鹰卡通
+https://live.264788.xyz/channel/jinyingkatong?streamid=790415358c6e852c799a2352d86cd719&livekey=01WgOR41rriMmMkzNsd0UoaxJRwetZdxIvtVk
+#EXTINF:-1 tvg-name="优漫卡通" group-title="Movies",优漫卡通
+http://38.75.136.137:98/gslb/dsdqpub/ymkt.m3u8?auth=testpub
+#EXTINF:-1 tvg-name="嘉佳卡通" group-title="Movies",嘉佳卡通
+http://k.061899.xyz/k.php?id=jjkt
+#EXTINF:-1 tvg-name="NewTV动作电影" group-title="Movies",NewTV动作电影
+https://iptv.catvod.com/live.php?id=NewTV%E5%8A%A8%E4%BD%9C%E7%94%B5%E5%BD%B1
+#EXTINF:-1 tvg-name="少儿动画" group-title="Movies",少儿动画
+rtp://239.3.1.199:9000
+#EXTINF:-1 tvg-name="动画高清" group-title="Movies",动画高清
+rtp://239.3.1.80:4120
+#EXTINF:-1 tvg-name="漫威电影" group-title="Movies",漫威电影
+http://1.94.31.214:35455/douyu/6140589
+#EXTINF:-1 tvg-name="龙华经典" group-title="Movies",龙华经典
+https://cdn8.163189.xyz/live/lhjd/stream.m3u8
+#EXTINF:-1 tvg-name="龙华卡通" group-title="Movies",龙华卡通
+https://cdn8.163189.xyz/live/lhkt/stream.m3u8
+#EXTINF:-1 tvg-name="龙华偶像" group-title="Movies",龙华偶像
+https://cdn8.163189.xyz/live/lhox/stream.m3u8
+#EXTINF:-1 tvg-name="龙华日韩" group-title="Movies",龙华日韩
+https://cdn8.163189.xyz/live/lhrh/stream.m3u8
+#EXTINF:-1 tvg-name="龙华戏剧" group-title="Movies",龙华戏剧
+https://cdn8.163189.xyz/live/lhxj/stream.m3u8
+#EXTINF:-1 tvg-name="韩国电影1" group-title="Movies",韩国电影1
+https://stream.ads.ottera.tv/playlist.m3u8?network_id=595
+#EXTINF:-1 tvg-name="韩国电影2" group-title="Movies",韩国电影2
+https://stream.ads.ottera.tv/playlist.m3u8?network_id=743
+#EXTINF:-1 tvg-name="NewTV 动作电影" group-title="Movies",NewTV 动作电影
+http://39.134.182.166/hwltc.tv.cdn.zj.chinamobile.com/PLTV/88888888/224/3221236183/index.m3u8
+#EXTINF:-1 tvg-name="周星驰电影" group-title="Movies",周星驰电影
+http://cdn.jdshipin.com:8880/huya.php?id=11342412
+#EXTINF:-1 tvg-name="刘德华电影" group-title="Movies",刘德华电影
+http://cdn.jdshipin.com:8880/huya.php?id=11342424
+#EXTINF:-1 tvg-name="成龙电影" group-title="Movies",成龙电影
+http://cdn.jdshipin.com:8880/huya.php?id=11342386
+#EXTINF:-1 tvg-name="功夫电影" group-title="Movies",功夫电影
+http://cdn.jdshipin.com:8880/huya.php?id=11352941
+#EXTINF:-1 tvg-name="战争电影" group-title="Movies",战争电影
+http://cdn.jdshipin.com:8880/huya.php?id=21059574
+#EXTINF:-1 tvg-name="淘电影" group-title="Movies",淘电影
+http://[2409:8087:1:20:20::26]/otttv.bj.chinamobile.com/PLTV/88888888/224/3221226552/1.m3u8?GuardEncType=2&accountinfo=%7E%7EV2.0%7EXOsrWMA-UCdUl1hQSR9EKw%7E_eNUbgU9sJGUcVVduOMKhafLvQUgE_zlz_7pvDimJNNg3bzRax0E9tLmO9xgXVx8%2CEND
+#EXTINF:-1 tvg-name="湖南电影" group-title="Movies",湖南电影
+http://tvbox6.icu/tv/mgtv.php?id=221
+#EXTINF:-1 tvg-name="峨眉电影" group-title="Movies",峨眉电影
+http://wouu.net:9977/udp/239.93.1.54:5140
+#EXTINF:-1 tvg-name="西部电影" group-title="Movies",西部电影
+http://112.46.105.20:8009/hls/62/index.m3u8
+#EXTINF:-1 tvg-name="MovieSphere" group-title="Movies",MovieSphere
+https://i.mjh.nz/SamsungTVPlus/USBD17000117B.m3u8
+#EXTINF:-1 tvg-name="电影刘德华" group-title="Movies",电影刘德华
+http://live.metshop.top/huya/11342424?cdn=alicdn
+#EXTINF:-1 tvg-name="CN卡通" group-title="Movies",CN卡通
+http://23.237.104.106:8080/USA_CARTOON_NETWORK/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-name="Cinemax精选" group-title="Movies",Cinemax精选
+http://23.237.104.106:8080/USA_MOREMAX/mono.m3u8
+#EXTINF:-1 tvg-name="Cinemax" group-title="Movies",Cinemax
+http://23.237.104.106:8080/USA_CINEMAX/tracks-v1a1/mono.m3u8
