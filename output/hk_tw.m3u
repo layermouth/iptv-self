@@ -1,103 +1,101 @@
 #EXTM3U
-#EXTINF:-1 tvg-name="翡翠台广电" group-title="HK_TW",翡翠台广电
+#EXTINF:-1 tvg-name="翡翠台广电" group-title="All",翡翠台广电
 http://cdn6.163189.xyz/163189/fct
-#EXTINF:-1 tvg-name="翡翠台4K" group-title="HK_TW",翡翠台4K
+#EXTINF:-1 tvg-name="翡翠台4K" group-title="All",翡翠台4K
 http://o11.163189.xyz/stream/tvb/fct4k/
-#EXTINF:-1 tvg-name="华丽翡翠台" group-title="HK_TW",华丽翡翠台
+#EXTINF:-1 tvg-name="华丽翡翠台" group-title="All",华丽翡翠台
 http://cdn6.163189.xyz/163189/jade
-#EXTINF:-1 tvg-name="翡翠一台(TVB1)" group-title="HK_TW",翡翠一台(TVB1)
+#EXTINF:-1 tvg-name="翡翠一台(TVB1)" group-title="All",翡翠一台(TVB1)
 http://cdn6.163189.xyz/163189/tvb1
-#EXTINF:-1 tvg-name="TVB翡翠剧集台" group-title="HK_TW",TVB翡翠剧集台
+#EXTINF:-1 tvg-name="TVB翡翠剧集台" group-title="All",TVB翡翠剧集台
 http://cdn6.163189.xyz/163189/tvbd
-#EXTINF:-1 tvg-name="TVB 翡翠台" group-title="HK_TW",TVB 翡翠台
+#EXTINF:-1 tvg-name="TVB 翡翠台" group-title="All",TVB 翡翠台
 http://8.138.7.223/tv/gdmzyd.php?id=1
-#EXTINF:-1 tvg-name="明珠台" group-title="HK_TW",明珠台
+#EXTINF:-1 tvg-name="明珠台" group-title="All",明珠台
 http://o11.163189.xyz/stream/tvb/mzt/
-#EXTINF:-1 tvg-name="TVB明珠台" group-title="HK_TW",TVB明珠台
+#EXTINF:-1 tvg-name="TVB明珠台" group-title="All",TVB明珠台
 http://cdn9.163189.xyz/smt1.1.php?id=pearl_twn
-#EXTINF:-1 tvg-name="无线新闻台" group-title="HK_TW",无线新闻台
+#EXTINF:-1 tvg-name="无线新闻台" group-title="All",无线新闻台
 http://cdn6.163189.xyz/163189/wxxw
-#EXTINF:-1 tvg-name="凤凰中文高清" group-title="HK_TW",凤凰中文高清
+#EXTINF:-1 tvg-name="凤凰中文高清" group-title="All",凤凰中文高清
 http://cdn6.163189.xyz/163189/fhzw
-#EXTINF:-1 tvg-name="凤凰资讯高清" group-title="HK_TW",凤凰资讯高清
+#EXTINF:-1 tvg-name="凤凰资讯高清" group-title="All",凤凰资讯高清
 http://cdn6.163189.xyz/163189/fhzx
-#EXTINF:-1 tvg-name="HOY78" group-title="HK_TW",HOY78
+#EXTINF:-1 tvg-name="HOY78" group-title="All",HOY78
 http://cdn.163189.xyz/live/hoy/stream.m3u8
-#EXTINF:-1 tvg-name="HOY77" group-title="HK_TW",HOY77
+#EXTINF:-1 tvg-name="HOY77" group-title="All",HOY77
 http://cdn6.163189.xyz/163189/hoy
-#EXTINF:-1 tvg-name="RTHK 31" group-title="HK_TW",RTHK 31
+#EXTINF:-1 tvg-name="RTHK 31" group-title="All",RTHK 31
 http://cdn.163189.xyz/163189/rthk31
-#EXTINF:-1 tvg-name="RTHK 32" group-title="HK_TW",RTHK 32
+#EXTINF:-1 tvg-name="RTHK 32" group-title="All",RTHK 32
 http://cdn.163189.xyz/163189/rthk32
-#EXTINF:-1 tvg-name="RTHKTV31" group-title="HK_TW",RTHKTV31
+#EXTINF:-1 tvg-name="RTHKTV31" group-title="All",RTHKTV31
 https://rthktv31-live.akamaized.net/hls/live/2036818/RTHKTV31/master.m3u8
-#EXTINF:-1 tvg-name="NOW NEWS" group-title="HK_TW",NOW NEWS
+#EXTINF:-1 tvg-name="NOW NEWS" group-title="All",NOW NEWS
 http://cdn.163189.xyz/163189/now
-#EXTINF:-1 tvg-name="HEi Now (1080p)" group-title="HK_TW",HEi Now (1080p)
+#EXTINF:-1 tvg-name="HEi Now (1080p)" group-title="All",HEi Now (1080p)
 https://copacogen.desdeparaguay.net/heitv/heitv_py_alta/playlist.m3u8?admin=nacion
-#EXTINF:-1 tvg-name="NOW TV (720p)" group-title="HK_TW",NOW TV (720p)
+#EXTINF:-1 tvg-name="NOW TV (720p)" group-title="All",NOW TV (720p)
 https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv.m3u8
-#EXTINF:-1 tvg-name="Now TVNEWS" group-title="HK_TW",Now TVNEWS
+#EXTINF:-1 tvg-name="Now TVNEWS" group-title="All",Now TVNEWS
 http://cdn.163189.xyz/163189/now
-#EXTINF:-1 tvg-name="Now TV70s" group-title="HK_TW",Now TV70s
+#EXTINF:-1 tvg-name="Now TV70s" group-title="All",Now TV70s
 https://lightning-now70s-rakuten.amagi.tv/hls/amagi_hls_data_rakutenAA-lightning-now70s-rakuten/CDN/playlist.m3u8
-#EXTINF:-1 tvg-name="Now TV90s00s" group-title="HK_TW",Now TV90s00s
+#EXTINF:-1 tvg-name="Now TV90s00s" group-title="All",Now TV90s00s
 https://amg01076-amg01076c19-rakuten-gb-8653.playouts.now.amagi.tv/playlist/amg01076-lightning-now90s00s-rakutengb/playlist.m3u8
-#EXTINF:-1 tvg-name="Now TV94.3FMWinnipeg" group-title="HK_TW",Now TV94.3FMWinnipeg
-https://videostream.jpbgdigital.com/CHNWTV.m3u8
-#EXTINF:-1 tvg-name="Now TV102.3FMEdmonton" group-title="HK_TW",Now TV102.3FMEdmonton
-https://videostream.jpbgdigital.com/NOWTV.m3u8
-#EXTINF:-1 tvg-name="NOW新闻" group-title="HK_TW",NOW新闻
+#EXTINF:-1 tvg-name="NOW新闻" group-title="All",NOW新闻
 http://cdn.163189.xyz/163189/now
-#EXTINF:-1 tvg-name="中视 新闻台" group-title="HK_TW",中视 新闻台
+#EXTINF:-1 tvg-name="中视 新闻台" group-title="All",中视 新闻台
 https://raw.gh.registry.cyou/ChiSheng9/iptv/master/TV09.m3u8
-#EXTINF:-1 tvg-name="民视 新闻台" group-title="HK_TW",民视 新闻台
+#EXTINF:-1 tvg-name="民视 新闻台" group-title="All",民视 新闻台
 http://38.64.72.148:80/hls/modn/list/4012/chunklist0.m3u8
-#EXTINF:-1 tvg-name="民视闽南频道" group-title="HK_TW",民视闽南频道
+#EXTINF:-1 tvg-name="民视闽南频道" group-title="All",民视闽南频道
 http://37.27.111.214:8080/live/6/hls.m3u8
-#EXTINF:-1 tvg-name="TVBS新闻" group-title="HK_TW",TVBS新闻
+#EXTINF:-1 tvg-name="TVBS新闻" group-title="All",TVBS新闻
 http://jnzq.ohoyee.com:9080/live/332123-tvbsxw.m3u8
-#EXTINF:-1 tvg-name="TVBS歡樂台" group-title="HK_TW",TVBS歡樂台
+#EXTINF:-1 tvg-name="TVBS歡樂台" group-title="All",TVBS歡樂台
 https://4gtv.158.qzz.io/163189/1e0bdf17-436e-40d9-b442-ca3e2bf3d1db/
-#EXTINF:-1 tvg-name="TVBS 亚洲台" group-title="HK_TW",TVBS 亚洲台
+#EXTINF:-1 tvg-name="TVBS 亚洲台" group-title="All",TVBS 亚洲台
 http://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index_5.m3u8?zshijd
-#EXTINF:-1 tvg-name="TVBS新闻台" group-title="HK_TW",TVBS新闻台
+#EXTINF:-1 tvg-name="TVBS新闻台" group-title="All",TVBS新闻台
 http://61.221.215.25:8800/hls/9/index.m3u8
-#EXTINF:-1 tvg-name="TVBS Asia (1080p)" group-title="HK_TW",TVBS Asia (1080p)
+#EXTINF:-1 tvg-name="TVBS Asia (1080p)" group-title="All",TVBS Asia (1080p)
 http://38.64.72.148/hls/modn/list/4005/playlist.m3u8
-#EXTINF:-1 tvg-name="TVBS亚洲" group-title="HK_TW",TVBS亚洲
+#EXTINF:-1 tvg-name="TVBS亚洲" group-title="All",TVBS亚洲
 http://38.64.72.148/hls/modn/list/4005/playlist.m3u8
-#EXTINF:-1 tvg-name="三立戏剧" group-title="HK_TW",三立戏剧
+#EXTINF:-1 tvg-name="三立戏剧" group-title="All",三立戏剧
 http://61.221.215.25:8800/hls/41/index.m3u8
-#EXTINF:-1 tvg-name="八大戏剧台" group-title="HK_TW",八大戏剧台
+#EXTINF:-1 tvg-name="八大戏剧台" group-title="All",八大戏剧台
 http://61.221.215.25:8800/hls/39/index.m3u8
-#EXTINF:-1 tvg-name="纬来精采" group-title="HK_TW",纬来精采
+#EXTINF:-1 tvg-name="纬来精采" group-title="All",纬来精采
 http://61.221.215.25:8800/hls/48/index.m3u8
-#EXTINF:-1 tvg-name="香港C+" group-title="HK_TW",香港C+
-http://ottproxy2.ist.ooo/livehls/MOB-U1-NO/index.m3u8
-#EXTINF:-1 tvg-name="香港古典音乐" group-title="HK_TW",香港古典音乐
-https://rthkradio1-live.akamaized.net/hls/live/2035313/radio1/master.m3u8?sd=10&rebase=on
-#EXTINF:-1 tvg-name="香港第三台" group-title="HK_TW",香港第三台
-https://rthkaudio3-lh.akamaihd.net/i/radio3_1@355866/master.m3u8
-#EXTINF:-1 tvg-name="凤凰卫视" group-title="HK_TW",凤凰卫视
-https://cdn6.163189.xyz/live/fhhk/stream.m3u8
-#EXTINF:-1 tvg-name="凤凰卫视高清" group-title="HK_TW",凤凰卫视高清
-http://cdn6.163189.xyz/163189/fhzx
-#EXTINF:-1 tvg-name="凤凰香港高清" group-title="HK_TW",凤凰香港高清
+#EXTINF:-1 tvg-name="TVB PLUS" group-title="All",TVB PLUS
+http://o11.163189.xyz/stream/tvb/tvbp/
+#EXTINF:-1 tvg-name="TVBJ" group-title="All",TVBJ
+http://cdn6.163189.xyz/163189/j1
+#EXTINF:-1 tvg-name="TVB亚洲武侠" group-title="All",TVB亚洲武侠
+http://cdn6.163189.xyz/163189/yzwx
+#EXTINF:-1 tvg-name="TVB星河" group-title="All",TVB星河
+http://cdn6.163189.xyz/163189/tvbxh
+#EXTINF:-1 tvg-name="有線財經信息台" group-title="All",有線財經信息台
+https://epg.pw/stream/0fddc0600d3868b05ad741d46294410aebca0fdc4fada5028dc54e624b7b17ca.m3u8
+#EXTINF:-1 tvg-name="凤凰香港高清" group-title="All",凤凰香港高清
 http://cdn6.163189.xyz/163189/fhhk
-#EXTINF:-1 tvg-name="耀才财经" group-title="HK_TW",耀才财经
+#EXTINF:-1 tvg-name="耀才财经" group-title="All",耀才财经
 https://v3.mediacast.hk/webcast/bshdlive-pc/chunklist_w99771165.m3u8
-#EXTINF:-1 tvg-name="龙华洋片" group-title="HK_TW",龙华洋片
-https://cdn8.163189.xyz/live/lhyp/stream.m3u8
-#EXTINF:-1 tvg-name="龙华经典" group-title="HK_TW",龙华经典
-https://cdn8.163189.xyz/live/lhjd/stream.m3u8
-#EXTINF:-1 tvg-name="龙华卡通" group-title="HK_TW",龙华卡通
-https://cdn8.163189.xyz/live/lhkt/stream.m3u8
-#EXTINF:-1 tvg-name="龙华偶像" group-title="HK_TW",龙华偶像
-https://cdn8.163189.xyz/live/lhox/stream.m3u8
-#EXTINF:-1 tvg-name="龙华日韩" group-title="HK_TW",龙华日韩
-https://cdn8.163189.xyz/live/lhrh/stream.m3u8
-#EXTINF:-1 tvg-name="龙华戏剧" group-title="HK_TW",龙华戏剧
-https://cdn8.163189.xyz/live/lhxj/stream.m3u8
-#EXTINF:-1 tvg-name="香港面包" group-title="HK_TW",香港面包
-https://video.bread-tv.com:8091/hls-live24/online/index.m3u8
+#EXTINF:-1 tvg-name="大立电视台" group-title="All",大立电视台
+http://www.dalitv.com.tw:4568/live/dali/index.m3u8
+#EXTINF:-1 tvg-name="人间卫视" group-title="All",人间卫视
+http://61.216.67.119:1935/bltvhd/bltv1/chunklist_w1266569526.m3u
+#EXTINF:-1 tvg-name="澳门体育" group-title="All",澳门体育
+http://cdn6.163189.xyz/163189/amty
+#EXTINF:-1 tvg-name="澳门综艺" group-title="All",澳门综艺
+http://cdn6.163189.xyz/163189/amzy
+#EXTINF:-1 tvg-name="Dali TV (大立電視台) (720p)" group-title="All",Dali TV (大立電視台) (720p)
+http://www.dalitv.com.tw:4568/live/dali/index.m3u8
+#EXTINF:-1 tvg-name="唯心電視 (480p)" group-title="All",唯心電視 (480p)
+https://mobile.ccdntech.com/transcoder/_definst_/vod164_Live/live/chunklist_w1177047531.m3u8
+#EXTINF:-1 tvg-name="澳门莲花" group-title="All",澳门莲花
+http://cdn6.163189.xyz/163189/amlh
+#EXTINF:-1 tvg-name="TVB武侠" group-title="All",TVB武侠
+http://cdn6.163189.xyz/163189/yzwx
